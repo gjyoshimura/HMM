@@ -134,7 +134,7 @@ def main ():
         print("CHUVA_SOL: %f"% prob_chuva_sol)
         print("SOL_CHUVA: %f"% prob_sol_chuva)
         print("SOL_SOL: %f"% prob_sol_sol)
-        print("CHUVA_CHUVA: %f"% prob_chuva_chuva)
+        print("CHUVA_CHUVA: %f\n"% prob_chuva_chuva)
 
         umid_min_chuva = 10000
         umid_med_chuva = 0
@@ -164,34 +164,42 @@ def main ():
         umid_med_chuva = umid_med_chuva/count_chuva
         umid_med_sol = umid_med_sol/count_sol  
         
-        #print("CHUVA: umidade_min = %f\numidade_med = %f\numidade_max = %f  " % (umid_min_chuva, umid_med_chuva, umid_max_chuva))
-        #print("SOL: umidade_min = %f\numidade_med = %f\numidade_max = %f  " % (umid_min_sol, umid_med_sol, umid_max_sol))
+        print("CHUVA: umidade_min = %f\numidade_med = %f\numidade_max = %f  " % (umid_min_chuva, umid_med_chuva, umid_max_chuva))
+        print("SOL: umidade_min = %f\numidade_med = %f\numidade_max = %f  " % (umid_min_sol, umid_med_sol, umid_max_sol))
         
         prob_umid_maior_med_chuva = 0
+        prob_umid_med_chuva = 0
         prob_umid_menor_med_chuva = 0
         prob_umid_maior_med_sol = 0
+        prob_umid_med_sol = 0
         prob_umid_menor_med_sol = 0
         for i in range(size):
             if matrix_float[i][10] > 0.00:        
-                if matrix_float[i][4] > umid_med_chuva:
-                    prob_umid_maior_med_chuva += 1
-                else: 
+                if matrix_float[i][4] < 60:                    
                     prob_umid_menor_med_chuva += 1
-            else:
-                if matrix_float[i][4] > umid_med_sol:
-                    prob_umid_maior_med_sol += 1
-                else:
+                elif matrix_float[i][4] > 60 and matrix_float[i][4] < 80:   
+                    prob_umid_med_chuva += 1             
+                else: 
+                    prob_umid_maior_med_chuva += 1
+            else:      
+                if matrix_float[i][4] < 60:                    
                     prob_umid_menor_med_sol += 1
+                elif matrix_float[i][4] > 60 and matrix_float[i][4] < 80:   
+                    prob_umid_med_sol += 1             
+                else: 
+                    prob_umid_maior_med_sol += 1
 
         prob_umid_maior_med_chuva = prob_umid_maior_med_chuva/count_chuva
         prob_umid_menor_med_chuva = prob_umid_menor_med_chuva/count_chuva
+        prob_umid_med_chuva = prob_umid_med_chuva/count_chuva
         prob_umid_maior_med_sol = prob_umid_maior_med_sol/count_sol
+        prob_umid_med_sol = prob_umid_med_sol/count_sol
         prob_umid_menor_med_sol = prob_umid_menor_med_sol/count_sol
         
-        print("CHUVA: \nprob_umid_maior_med_chuva = %f\nprob_umid_menor_med_chuva = %f\nSOL: \nprob_umid_maior_med_sol = %f\nprob_umid_menor_med_sol = %f "% (prob_umid_maior_med_chuva, prob_umid_menor_med_chuva, prob_umid_maior_med_sol, prob_umid_menor_med_sol))
+        print("CHUVA: \nprob_umid_maior_med_chuva = %f\nprob_umid_med_chuva = %f\nprob_umid_menor_med_chuva = %f\nSOL: \nprob_umid_maior_med_sol = %f\nprob_umid_med_sol = %f\nprob_umid_menor_med_sol = %f "% (prob_umid_maior_med_chuva, prob_umid_med_chuva, prob_umid_menor_med_chuva, prob_umid_maior_med_sol, prob_umid_med_sol, prob_umid_menor_med_sol))
 
     #observations
-        obs = ('ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE') #media de umidade 
+        obs = ('BAIXA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE',	'ALTA UMIDADE') #media de umidade 
     #states
         states = ('SOL','CHUVA')
             
@@ -206,8 +214,8 @@ def main ():
             }
     #emission_probability
         B = {
-                'SOL': {'ALTA UMIDADE': prob_umid_maior_med_sol, 'BAIXA UMIDADE': prob_umid_menor_med_sol},       
-                'CHUVA': {'ALTA UMIDADE': prob_umid_maior_med_chuva, 'BAIXA UMIDADE': prob_umid_menor_med_chuva}
+                'SOL': {'ALTA UMIDADE': prob_umid_maior_med_sol, 'UMIDADE NORMAL': prob_umid_med_sol, 'BAIXA UMIDADE': prob_umid_menor_med_sol},       
+                'CHUVA': {'ALTA UMIDADE': prob_umid_maior_med_chuva, 'UMIDADE NORMAL': prob_umid_med_chuva, 'BAIXA UMIDADE': prob_umid_menor_med_chuva}
             }     
 
         viterbi(obs, states, pi, A, B)
